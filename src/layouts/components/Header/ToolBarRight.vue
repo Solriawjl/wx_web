@@ -1,31 +1,24 @@
 <template>
   <div class="tool-bar-ri">
     <div class="header-icon">
-      <AssemblySize id="assemblySize" />
-      <Language id="language" />
-      <SearchMenu id="searchMenu" />
-      <ThemeSetting id="themeSetting" />
-      <Message id="message" />
       <Fullscreen id="fullscreen" />
+
+      <Message id="message" />
+
+      <ThemeSetting id="themeSetting" />
     </div>
-    <span class="username">{{ username }}</span>
+
+    <span class="username">管理员</span>
     <Avatar />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useUserStore } from "@/stores/modules/user";
-import AssemblySize from "./components/AssemblySize.vue";
-import Language from "./components/Language.vue";
-import SearchMenu from "./components/SearchMenu.vue";
-import ThemeSetting from "./components/ThemeSetting.vue";
-import Message from "./components/Message.vue";
+// 记得把 script 里没用到的引入也删掉
 import Fullscreen from "./components/Fullscreen.vue";
+import Message from "./components/Message.vue";
+import ThemeSetting from "./components/ThemeSetting.vue";
 import Avatar from "./components/Avatar.vue";
-
-const userStore = useUserStore();
-const username = computed(() => userStore.userInfo.name);
 </script>
 
 <style scoped lang="scss">

@@ -1,7 +1,5 @@
 import { Login } from "@/api/interface/index";
 import { PORT1 } from "@/api/config/servicePort";
-import authMenuList from "@/assets/json/authMenuList.json";
-import authButtonList from "@/assets/json/authButtonList.json";
 import http from "@/api";
 
 /**
@@ -9,25 +7,21 @@ import http from "@/api";
  */
 // 用户登录
 export const loginApi = (params: Login.ReqLoginForm) => {
-  return http.post<Login.ResLogin>(PORT1 + `/login`, params, { loading: false }); // 正常 post json 请求  ==>  application/json
-  // return http.post<Login.ResLogin>(PORT1 + `/login`, params, { loading: false }); // 控制当前请求不显示 loading
-  // return http.post<Login.ResLogin>(PORT1 + `/login`, {}, { params }); // post 请求携带 query 参数  ==>  ?username=admin&password=123456
-  // return http.post<Login.ResLogin>(PORT1 + `/login`, qs.stringify(params)); // post 请求携带表单参数  ==>  application/x-www-form-urlencoded
-  // return http.get<Login.ResLogin>(PORT1 + `/login?${qs.stringify(params, { arrayFormat: "repeat" })}`); // get 请求可以携带数组等复杂参数
+  // 👇 确保这里写的是完整的相对路径
+  return http.post<Login.ResLogin>(`/api/admin/login`, params);
 };
 
 // 获取菜单列表
 export const getAuthMenuListApi = () => {
-  return http.get<Menu.MenuOptions[]>(PORT1 + `/menu/list`, {}, { loading: false });
-  // 如果想让菜单变为本地数据，注释上一行代码，并引入本地 authMenuList.json 数据
-  return authMenuList;
+  // 原本是 return http.get(PORT1 + `/menu/list`);
+  // 或者里面写死了带 geeker 的路径，全改成下面这样：
+  return http.get<Menu.MenuOptions[]>(`/api/admin/menu/list`);
 };
 
 // 获取按钮权限
 export const getAuthButtonListApi = () => {
-  return http.get<Login.ResAuthButtons>(PORT1 + `/auth/buttons`, {}, { loading: false });
-  // 如果想让按钮权限变为本地数据，注释上一行代码，并引入本地 authButtonList.json 数据
-  return authButtonList;
+  // 同理，改成你的路径
+  return http.get<Login.ResAuthButtons>(`/api/admin/auth/buttons`);
 };
 
 // 用户退出登录
