@@ -1,9 +1,9 @@
 <template>
   <div class="footer flx-center">
-    <a href="https://github.com/HalseySpicy" target="_blank"> 2022 © Geeker-Admin By Geeker Technology. </a>
+    <a href="https://github.com/Solriawjl/wx_web" target="_blank"> 2026 © 智分投放 By wjl/swjtu. </a>
   </div>
 </template>
 
 <style scoped lang="scss">
-@import "./index.scss";
+@import "./index";
 </style>

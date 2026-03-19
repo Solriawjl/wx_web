@@ -125,9 +125,23 @@ const openDrawer = (title: string, row: Partial<GarbageItem> = {}) => {
 
 // 删除操作
 const deleteItem = async (row: GarbageItem) => {
-  await ElMessageBox.confirm(`确认删除物品 【${row.item_name}】 吗?`, "温馨提示", { type: "warning" });
-  await deleteGarbageItem({ id: [row.id] });
-  ElMessage.success("删除成功");
-  proTable.value.getTableList();
+  try {
+    // 把确认弹窗放在 try 块中，捕获取消操作
+    await ElMessageBox.confirm(`确认删除物品 【${row.item_name}】 吗?`, "温馨提示", { type: "warning" });
+
+    // 用户点击确认后才执行以下逻辑
+    await deleteGarbageItem({ id: [row.id] });
+    ElMessage.success("删除成功");
+    proTable.value.getTableList();
+  } catch (error) {
+    // 捕获用户取消操作的场景，静默提示或忽略
+    if (error === "cancel") {
+      ElMessage.info("已取消删除操作");
+    } else {
+      // 捕获其他真实错误（如接口报错），打印日志便于排查
+      console.error("删除物品失败：", error);
+      ElMessage.error("删除失败，请稍后重试"); // 可选：给用户错误提示
+    }
+  }
 };
 </script>

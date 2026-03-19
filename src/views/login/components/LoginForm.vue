@@ -80,18 +80,13 @@ const login = (formEl: FormInstance | undefined) => {
 
       // 4.跳转到首页
       router.push(HOME_URL);
-      // ElNotification({
-      //   title: getTimeState(),
-      //   message: "欢迎登录 Geeker-Admin",
-      //   type: "success",
-      //   duration: 3000
-      // });
+
+      // 👇 把原来的付费广告删掉，换成你自己的专属欢迎语
       ElNotification({
-        title: "React 付费版本 🔥🔥🔥",
-        dangerouslyUseHTMLString: true,
-        message: "预览地址：<a href='https://pro.spicyboy.cn'>https://pro.spicyboy.cn</a>",
+        title: "登录成功",
+        message: "欢迎回来，智能垃圾分类管理系统！",
         type: "success",
-        duration: 8000
+        duration: 3000
       });
     } finally {
       loading.value = false;

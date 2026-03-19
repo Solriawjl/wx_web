@@ -8,7 +8,7 @@
       <ThemeSetting id="themeSetting" />
     </div>
 
-    <span class="username">管理员</span>
+    <span class="username">wjl</span>
     <Avatar />
   </div>
 </template>
