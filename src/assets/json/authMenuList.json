@@ -1,5 +1,6 @@
 {
   "code": 200,
+  "msg": "成功",
   "data": [
     {
       "path": "/home/index",
@@ -16,12 +17,12 @@
       }
     },
     {
-      "path": "/proTable",
-      "name": "proTable",
-      "redirect": "/proTable/useProTable",
+      "path": "/garbage",
+      "name": "garbage",
+      "redirect": "/garbage/items/index",
       "meta": {
-        "icon": "List",
-        "title": "垃圾词库管理",
+        "icon": "Delete",
+        "title": "垃圾分类管理",
         "isLink": "",
         "isHide": false,
         "isFull": false,
@@ -30,12 +31,26 @@
       },
       "children": [
         {
-          "path": "/proTable/useProTable",
-          "name": "useProTable",
-          "component": "/proTable/useProTable/index",
+          "path": "/garbage/items/index",
+          "name": "garbageItems",
+          "component": "/garbage/items/index",
           "meta": {
             "icon": "Menu",
-            "title": "物品图鉴列表",
+            "title": "物品图鉴词库",
+            "isLink": "",
+            "isHide": false,
+            "isFull": false,
+            "isAffix": false,
+            "isKeepAlive": true
+          }
+        },
+        {
+          "path": "/garbage/categories/index",
+          "name": "garbageCategories",
+          "component": "/garbage/categories/index",
+          "meta": {
+            "icon": "Document",
+            "title": "四大类科普配置",
             "isLink": "",
             "isHide": false,
             "isFull": false,
@@ -44,7 +59,34 @@
           }
         }
       ]
+    },
+    {
+      "path": "/feedback/index",
+      "name": "feedback",
+      "component": "/feedback/index",
+      "meta": {
+        "icon": "Bell",
+        "title": "用户反馈审核",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      }
+    },
+    {
+      "path": "/users/index",
+      "name": "users",
+      "component": "/users/index",
+      "meta": {
+        "icon": "User",
+        "title": "小程序用户管理",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      }
     }
-  ],
-  "message": "成功"
+  ]
 }
