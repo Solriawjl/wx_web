@@ -75,6 +75,20 @@
       }
     },
     {
+      "path": "/mall",
+      "name": "mall",
+      "component": "/mall/index",
+      "meta": {
+        "icon": "Goods",
+        "title": "商城管理",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      }
+    },
+    {
       "path": "/users/index",
       "name": "users",
       "component": "/users/index",

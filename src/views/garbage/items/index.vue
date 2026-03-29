@@ -7,8 +7,12 @@
       :init-param="initParam"
       :data-callback="dataCallback"
     >
-      <template #tableHeader>
+      <template #tableHeader="scope">
         <el-button type="primary" icon="Plus" @click="openDrawer('新增')">新增物品</el-button>
+
+        <el-button type="danger" icon="Delete" plain :disabled="!scope.isSelected" @click="batchDelete(scope.selectedListIds)">
+          批量删除
+        </el-button>
       </template>
 
       <template #category_type="scope">
@@ -141,6 +145,30 @@ const deleteItem = async (row: GarbageItem) => {
       // 捕获其他真实错误（如接口报错），打印日志便于排查
       console.error("删除物品失败：", error);
       ElMessage.error("删除失败，请稍后重试"); // 可选：给用户错误提示
+    }
+  }
+};
+// 批量删除操作
+const batchDelete = async (ids: number[]) => {
+  try {
+    // 弹窗确认
+    await ElMessageBox.confirm(`确认删除选中的 ${ids.length} 个物品吗?`, "温馨提示", { type: "warning" });
+
+    // 发送删除请求（接口本身就支持传数组）
+    await deleteGarbageItem({ id: ids });
+
+    ElMessage.success("批量删除成功");
+
+    // 清空表格的选中状态，防止误操作
+    proTable.value.clearSelection();
+    // 刷新列表
+    proTable.value.getTableList();
+  } catch (error) {
+    if (error === "cancel") {
+      ElMessage.info("已取消批量删除操作");
+    } else {
+      console.error("批量删除失败：", error);
+      ElMessage.error("批量删除失败，请稍后重试");
     }
   }
 };
