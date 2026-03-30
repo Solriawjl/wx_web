@@ -51,7 +51,7 @@ import { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import MallDrawer from "./components/MallDrawer.vue";
 import { useHandleData } from "@/hooks/useHandleData";
-import { getMallItemList, deleteMallItem, updateMallItem, Mall } from "@/api/modules/mall";
+import { getMallItemList, deleteMallItem, updateMallItem, addMallItem, Mall } from "@/api/modules/mall";
 
 const proTable = ref<ProTableInstance>();
 
