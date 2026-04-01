@@ -69,34 +69,62 @@ const columns: ColumnProps<FeedbackRecord>[] = [
   { prop: "operation", label: "审核操作", fixed: "right", width: 200 }
 ];
 
-// 处理审核 (采纳/驳回) + 填写回复
+// 处理审核 (采纳/驳回)
 const handleAudit = async (row: FeedbackRecord, targetStatus: number) => {
-  const actionText = targetStatus === 1 ? "采纳" : "驳回";
-  const defaultReply =
-    targetStatus === 1 ? "感谢您的纠错，您的反馈已采纳！奖励积分+5。" : "抱歉，您的纠错未通过审核，原识别结果准确。";
-
   try {
-    // 使用 ElMessageBox.prompt 唤起带输入框的弹窗
-    const { value } = await ElMessageBox.prompt(`请输入【${actionText}】原因或给用户的回复消息：`, "审核并回复", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      inputType: "textarea", // 使用多行文本框
-      inputValue: defaultReply, // 给一个默认回复文案，方便管理员直接点确定
-      inputPlaceholder: "请输入回复内容..."
-    });
+    if (targetStatus === 1) {
+      // ==========================================
+      // 【情况 A：采纳】直接弹出 Confirm 确认框，自动发币和默认回复
+      // ==========================================
+      await ElMessageBox.confirm(`确认采纳反馈，并发放 5 环保币吗？`, "采纳确认", {
+        confirmButtonText: "确定发奖",
+        cancelButtonText: "取消",
+        type: "success"
+      });
 
-    // 调用接口，将状态和输入的回复一起发给后端
-    await auditFeedback({
-      id: row.id,
-      status: targetStatus,
-      admin_reply: value || "" // 如果清空了输入框，则传空字符串
-    });
+      // 调用接口，静默塞入默认文案
+      await auditFeedback({
+        id: row.id,
+        status: 1,
+        admin_reply: "感谢您的纠错，您的反馈已采纳！"
+      });
 
-    ElMessage.success(`操作成功！`);
+      ElMessage.success("采纳成功，奖励已发放！");
+    } else if (targetStatus === 2) {
+      // ==========================================
+      // 【情况 B：驳回】弹出 Prompt 输入框，强制要求填写理由
+      // ==========================================
+      const { value } = await ElMessageBox.prompt("该反馈存在误报，请输入驳回理由：", "驳回反馈", {
+        confirmButtonText: "确定驳回",
+        cancelButtonText: "取消",
+        inputType: "textarea", // 使用多行文本框
+        inputPlaceholder: "例如：图片模糊不清 / 官方分类无误等",
+        inputValue: "抱歉，您的反馈未通过审核。经人工核查，原分类结果准确无误。感谢您的参与和支持！",
+        inputValidator: val => {
+          // 校验器：如果为空或全是空格，则拦截并提示
+          if (!val || !val.trim()) {
+            return "驳回理由不能为空！请给用户一个解释。";
+          }
+          return true;
+        }
+      });
+
+      // 调用接口，传入管理员手填的驳回理由
+      await auditFeedback({
+        id: row.id,
+        status: 2,
+        admin_reply: value.trim()
+      });
+
+      ElMessage.success("已驳回");
+    }
+
+    // 操作成功后统一刷新表格
     proTable.value.getTableList();
   } catch (error) {
-    // 捕获用户点击“取消”按钮或关闭弹窗的事件，防止控制台报 unhandled promise rejection
-    ElMessage.info("已取消审核");
+    // 捕获用户点击“取消”按钮或关闭弹窗的事件
+    // 为了防止控制台报 unhandled promise rejection
+    ElMessage.info("已取消操作");
   }
 };
 </script>

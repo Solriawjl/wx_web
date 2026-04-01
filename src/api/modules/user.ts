@@ -8,6 +8,7 @@ export interface MiniUser {
   nickname: string;
   avatar_url: string;
   score: number;
+  eco_coin: number;
   title: string;
   created_at: string;
 }

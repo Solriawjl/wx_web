@@ -12,6 +12,10 @@
         <el-tag :type="getScoreTagType(scope.row.score)" effect="light" round> {{ scope.row.score }} 分 </el-tag>
       </template>
 
+      <template #eco_coin="scope">
+        <el-tag type="warning" effect="dark" round> 🪙 {{ scope.row.eco_coin || 0 }} </el-tag>
+      </template>
+
       <template #title="scope">
         <el-tag :type="getTitleTagType(scope.row.title)" effect="light" round style="font-weight: bold">
           🏅 {{ scope.row.title }}
@@ -59,8 +63,8 @@ const columns: ColumnProps<MiniUser>[] = [
   },
   { prop: "openid", label: "微信OpenID (唯一标识)" },
   { prop: "title", label: "当前环保称号", width: 150 },
-  { prop: "score", label: "环保积分", width: 150, sortable: true }, // 支持点击表头排序
-  { prop: "eco_coin", label: "环保币 (商城消费)", width: 150 },
+  { prop: "score", label: "挑战积分 (升段)", width: 150, sortable: true },
+  { prop: "eco_coin", label: "环保币 (商城消费)", width: 150, sortable: true },
   { prop: "created_at", label: "注册时间", width: 200 },
   { prop: "operation", label: "操作", fixed: "right", width: 120 }
 ];
