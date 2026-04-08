@@ -24,6 +24,7 @@
 
       <template #tableHeader>
         <el-button type="primary" icon="Plus" @click="openDrawer('新增')">新增用户</el-button>
+        <el-button type="primary" plain @click="openInviteCodeDialog"> 🎫 教师邀请码管理 </el-button>
       </template>
 
       <template #operation="scope">
@@ -37,6 +38,31 @@
       </template>
     </ProTable>
     <UserDrawer ref="drawerRef" />
+
+    <el-dialog v-model="dialogVisible" title="👨‍🏫 教师邀请码管理" width="600px" destroy-on-close>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px">
+        <span style="font-size: 14px; color: #666666">请将生成的邀请码分发给学校老师进行身份绑定</span>
+        <el-button type="success" @click="handleGenerateCode" :loading="generating"> + 生成新邀请码 </el-button>
+      </div>
+
+      <el-table :data="inviteCodeList" v-loading="loadingCodes" border stripe height="350px">
+        <el-table-column prop="id" label="ID" width="80" align="center" />
+        <el-table-column prop="code" label="邀请码" align="center">
+          <template #default="scope">
+            <el-tag size="large" effect="plain" style="font-weight: bold; letter-spacing: 1px">
+              {{ scope.row.code }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="is_used" label="使用状态" width="120" align="center">
+          <template #default="scope">
+            <el-tag :type="scope.row.is_used ? 'danger' : 'success'">
+              {{ scope.row.is_used ? "🚫 已使用" : "✅ 未使用" }}
+            </el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -44,7 +70,7 @@
 import { ref, reactive } from "vue";
 import ProTable from "@/components/ProTable/index.vue";
 import { ColumnProps } from "@/components/ProTable/interface";
-import { getUserList, deleteUser, addUser, MiniUser } from "@/api/modules/user";
+import { getUserList, deleteUser, addUser, MiniUser, getInviteCodesApi, generateInviteCodeApi } from "@/api/modules/user";
 import UserDrawer from "./components/UserDrawer.vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 
@@ -61,6 +87,24 @@ const columns: ColumnProps<MiniUser>[] = [
     search: { el: "input", tooltip: "按昵称模糊搜索" },
     width: 180
   },
+  {
+    prop: "role",
+    label: "用户角色",
+    enum: [
+      { label: "环保小卫士", value: "student", tagType: "success" },
+      { label: "指导老师", value: "teacher", tagType: "warning" },
+      { label: "管理员", value: "admin", tagType: "danger" }
+    ],
+    search: { el: "select", props: { filterable: true } },
+    render: scope => {
+      const row = scope.row as any;
+      return (
+        <el-tag type={row.role === "teacher" ? "warning" : "success"}>
+          {row.role === "teacher" ? "👩‍🏫 指导老师" : "🌱 环保小卫士"}
+        </el-tag>
+      );
+    }
+  },
   { prop: "openid", label: "微信OpenID (唯一标识)" },
   { prop: "title", label: "当前环保称号", width: 150 },
   { prop: "score", label: "挑战积分 (升段)", width: 150, sortable: true },
@@ -68,6 +112,56 @@ const columns: ColumnProps<MiniUser>[] = [
   { prop: "created_at", label: "注册时间", width: 200 },
   { prop: "operation", label: "操作", fixed: "right", width: 120 }
 ];
+
+// --- 👇 教师邀请码管理弹窗相关逻辑 👇 ---
+
+// 1. 定义邀请码的数据结构
+interface InviteCode {
+  id: number;
+  code: string;
+  is_used: boolean;
+}
+
+const dialogVisible = ref(false);
+// 2. 明确告诉 TypeScript 这是一个装满 InviteCode 对象的数组
+const inviteCodeList = ref<InviteCode[]>([]);
+const loadingCodes = ref(false);
+const generating = ref(false);
+
+// 打开弹窗并拉取数据
+const openInviteCodeDialog = async () => {
+  dialogVisible.value = true;
+  await fetchInviteCodes();
+};
+
+// 获取列表数据
+const fetchInviteCodes = async () => {
+  loadingCodes.value = true;
+  try {
+    const res = await getInviteCodesApi();
+    // 强制转换为 any 避免 Geeker 拦截器里的外层类型不一致导致的警告，真实数据结构我们用 interface 管控了
+    inviteCodeList.value = (res.data as any) || [];
+  } catch (error) {
+    console.error("获取邀请码失败", error);
+  } finally {
+    loadingCodes.value = false;
+  }
+};
+
+// 点击生成新邀请码
+const handleGenerateCode = async () => {
+  generating.value = true;
+  try {
+    await generateInviteCodeApi();
+    ElMessage.success("🎉 生成成功！");
+    await fetchInviteCodes(); // 生成成功后刷新列表
+  } catch (error) {
+    console.error("生成失败", error);
+  } finally {
+    generating.value = false;
+  }
+};
+// --- 👆 教师邀请码逻辑结束 👆 ---
 
 // 辅助方法：给不同积分段位的用户不同的颜色标签
 const getScoreTagType = (score: number) => {
@@ -107,15 +201,11 @@ const openDrawer = (title: string, row: Partial<MiniUser> = {}) => {
 
 const handleDelete = async (row: MiniUser) => {
   try {
-    // 把可能触发 reject 的确认弹窗放在 try 里面
     await ElMessageBox.confirm(`确认注销用户 【${row.nickname}】 吗?`, "温馨提示", { type: "warning" });
-
-    // 如果用户点了取消，下面的代码就不会执行了，直接跳到 catch 里
     await deleteUser({ id: [row.id] });
     ElMessage.success("注销成功");
     proTable.value.getTableList();
   } catch (error) {
-    // 捕获“取消”动作，静默处理或者给个轻提示，防止报错冒泡到全局
     if (error === "cancel") {
       ElMessage.info("已取消操作");
     } else {

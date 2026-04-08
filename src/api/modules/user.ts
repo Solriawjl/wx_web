@@ -11,6 +11,7 @@ export interface MiniUser {
   eco_coin: number;
   title: string;
   created_at: string;
+  role: string;
 }
 
 /**
@@ -29,4 +30,14 @@ export const addUser = (params: any) => {
 // 删除用户
 export const deleteUser = (params: { id: number[] }) => {
   return http.post(`/api/admin/users/delete`, params);
+};
+
+// 获取教师邀请码列表
+export const getInviteCodesApi = () => {
+  return http.get(`/api/admin/invite_codes`);
+};
+
+// 生成新的教师邀请码
+export const generateInviteCodeApi = () => {
+  return http.post(`/api/admin/generate_invite_code`);
 };

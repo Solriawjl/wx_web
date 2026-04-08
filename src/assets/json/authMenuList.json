@@ -89,9 +89,10 @@
       }
     },
     {
-      "path": "/users/index",
+      "path": "/users",
       "name": "users",
-      "component": "/users/index",
+      "redirect": "/users/student/index",
+      "component": "Layout",
       "meta": {
         "icon": "User",
         "title": "小程序用户管理",
@@ -100,7 +101,37 @@
         "isFull": false,
         "isAffix": false,
         "isKeepAlive": true
-      }
+      },
+      "children": [
+        {
+          "path": "/users/student/index",
+          "name": "studentManage",
+          "component": "/users/student/index",
+          "meta": {
+            "icon": "UserFilled",
+            "title": "环保小卫士",
+            "isLink": "",
+            "isHide": false,
+            "isFull": false,
+            "isAffix": false,
+            "isKeepAlive": true
+          }
+        },
+        {
+          "path": "/users/teacher/index",
+          "name": "teacherManage",
+          "component": "/users/teacher/index",
+          "meta": {
+            "icon": "Avatar",
+            "title": "指导老师",
+            "isLink": "",
+            "isHide": false,
+            "isFull": false,
+            "isAffix": false,
+            "isKeepAlive": true
+          }
+        }
+      ]
     }
   ]
 }

@@ -76,7 +76,7 @@ const handleAudit = async (row: FeedbackRecord, targetStatus: number) => {
       // ==========================================
       // 【情况 A：采纳】直接弹出 Confirm 确认框，自动发币和默认回复
       // ==========================================
-      await ElMessageBox.confirm(`确认采纳反馈，并发放 5 环保币吗？`, "采纳确认", {
+      await ElMessageBox.confirm(`确认采纳反馈，并发放 2 朵小红花吗？`, "采纳确认", {
         confirmButtonText: "确定发奖",
         cancelButtonText: "取消",
         type: "success"

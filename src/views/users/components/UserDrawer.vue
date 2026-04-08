@@ -1,98 +1,84 @@
 <template>
-  <el-drawer v-model="drawerVisible" :destroy-on-close="true" size="450px" :title="`${drawerProps.title}用户`">
+  <el-drawer v-model="drawerVisible" :destroy-on-close="true" size="450px" :title="`${drawerProps.title}`">
     <el-form ref="ruleFormRef" label-width="100px" label-suffix=" :" :rules="rules" :model="drawerProps.row">
+      <el-form-item label="用户头像" prop="avatar_url">
+        <el-input v-model="drawerProps.row.avatar_url" placeholder="请填写头像链接(可选)" clearable></el-input>
+      </el-form-item>
+
       <el-form-item label="微信昵称" prop="nickname">
-        <el-input v-model="drawerProps.row.nickname" placeholder="请填写用户昵称" clearable />
+        <el-input v-model="drawerProps.row.nickname" placeholder="请填写微信昵称" clearable></el-input>
       </el-form-item>
 
-      <el-form-item label="头像链接" prop="avatar_url">
-        <el-input v-model="drawerProps.row.avatar_url" placeholder="可为空，不填将自动使用默认头像" clearable />
+      <el-form-item label="用户身份" prop="role">
+        <el-tag :type="drawerProps.row.role === 'teacher' ? 'warning' : 'success'" size="large" effect="dark">
+          {{ drawerProps.row.role === "teacher" ? "指导老师" : "环保小卫士" }}
+        </el-tag>
       </el-form-item>
 
-      <el-form-item label="环保积分" prop="score">
-        <el-input-number v-model="drawerProps.row.score" :min="0" :max="99999" placeholder="请输入积分" style="width: 100%" />
-      </el-form-item>
+      <template v-if="drawerProps.row.role === 'student'">
+        <el-divider content-position="center">小卫士专属数据</el-divider>
+        <el-form-item label="环保称号" prop="title">
+          <el-input v-model="drawerProps.row.title" placeholder="例如：环保小卫士" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="环保星" prop="score">
+          <el-input-number v-model="drawerProps.row.score" :min="0" placeholder="闯关积分" />
+        </el-form-item>
+        <el-form-item label="小红花" prop="eco_coin">
+          <el-input-number v-model="drawerProps.row.eco_coin" :min="0" placeholder="可用余额" />
+        </el-form-item>
+      </template>
 
-      <el-form-item label="环保称号" prop="title">
-        <el-select v-model="drawerProps.row.title" placeholder="请选择环保称号" clearable>
-          <el-option label="环保新手 (默认)" value="环保新手" />
-          <el-option label="环保卫士" value="环保卫士" />
-          <el-option label="环保达人" value="环保达人" />
-          <el-option label="环保王者" value="环保王者" />
-        </el-select>
-      </el-form-item>
-
-      <el-alert
-        title="提示：后台手动新增的用户将生成虚拟的 OpenID，主要用于测试或发放内部账号。"
-        type="info"
-        :closable="false"
-        style="margin-top: 20px"
-        v-if="drawerProps.title === '新增'"
-      />
+      <template v-if="drawerProps.row.role === 'teacher'">
+        <el-divider content-position="center">教师专属数据</el-divider>
+        <div style="padding: 0 20px">
+          <el-alert title="教师账号无需参与积分挑战，暂无附加数值属性。" type="info" :closable="false" show-icon />
+        </div>
+      </template>
     </el-form>
-
     <template #footer>
       <el-button @click="drawerVisible = false">取消</el-button>
-      <el-button type="primary" @click="handleSubmit">确定</el-button>
+      <el-button type="primary" v-show="!drawerProps.isView" @click="handleSubmit">确定</el-button>
     </template>
   </el-drawer>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive } from "vue";
-import { ElMessage, FormInstance } from "element-plus";
+import { ElMessage } from "element-plus";
+import { MiniUser } from "@/api/modules/user";
 
-// 接收父组件传过来的参数
+const rules = reactive({
+  nickname: [{ required: true, message: "请填写用户昵称" }]
+});
+
 interface DrawerProps {
   title: string;
-  row: any;
+  isView: boolean;
+  row: Partial<MiniUser>;
   api?: (params: any) => Promise<any>;
   getTableList?: () => void;
 }
 
 const drawerVisible = ref(false);
 const drawerProps = ref<DrawerProps>({
+  isView: false,
   title: "",
   row: {}
 });
 
-// 表单验证规则 (限制必填项)
-const rules = reactive({
-  nickname: [{ required: true, message: "请填写微信昵称", trigger: "blur" }],
-  title: [{ required: true, message: "请选择环保称号", trigger: "change" }]
-});
-
-const ruleFormRef = ref<FormInstance>();
-
-// 暴露给父组件的方法，用于打开抽屉并接收数据
 const acceptParams = (params: DrawerProps) => {
   drawerProps.value = params;
-
-  // 如果是新增操作，给予默认的积分和称号
-  if (params.title === "新增") {
-    drawerProps.value.row.score = 0;
-    drawerProps.value.row.title = "环保新手";
-  }
-
   drawerVisible.value = true;
 };
 
-// 提交表单逻辑
+const ruleFormRef = ref();
 const handleSubmit = () => {
-  ruleFormRef.value!.validate(async valid => {
+  ruleFormRef.value!.validate(async (valid: boolean) => {
     if (!valid) return;
     try {
-      // 👇 核心逻辑：如果没有填写头像URL，赋予默认头像
-      if (!drawerProps.value.row.avatar_url || drawerProps.value.row.avatar_url.trim() === "") {
-        drawerProps.value.row.avatar_url = "https://images-1408449839.cos.ap-chengdu.myqcloud.com/images/user/head.png";
-      }
-
-      // 调用父组件传过来的 API (例如 addUser)
       await drawerProps.value.api!(drawerProps.value.row);
-      ElMessage.success({ message: `${drawerProps.value.title}用户成功！` });
-      // 刷新父组件的表格
+      ElMessage.success({ message: `${drawerProps.value.title}成功！` });
       drawerProps.value.getTableList!();
-      // 关闭抽屉
       drawerVisible.value = false;
     } catch (error) {
       console.log(error);
@@ -100,8 +86,5 @@ const handleSubmit = () => {
   });
 };
 
-// 将 acceptParams 暴露出去，让主页面的 ref 能够调用
-defineExpose({
-  acceptParams
-});
+defineExpose({ acceptParams });
 </script>
