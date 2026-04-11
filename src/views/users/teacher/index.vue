@@ -55,7 +55,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 
 const proTable = ref();
 
-// 专属于老师的列配置（极其精简，没有称号和积分）
+// 专属于老师的列配置（极其精简，没有称号和小红花）
 const columns: ColumnProps<MiniUser>[] = [
   { type: "index", label: "序号", width: 80 },
   { prop: "avatar_url", label: "教师头像", width: 100 },

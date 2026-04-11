@@ -107,7 +107,7 @@ const columns: ColumnProps<MiniUser>[] = [
   },
   { prop: "openid", label: "微信OpenID (唯一标识)" },
   { prop: "title", label: "当前环保称号", width: 150 },
-  { prop: "score", label: "挑战积分 (升段)", width: 150, sortable: true },
+  { prop: "score", label: "挑战环保星 (升段)", width: 150, sortable: true },
   { prop: "eco_coin", label: "环保币 (商城消费)", width: 150, sortable: true },
   { prop: "created_at", label: "注册时间", width: 200 },
   { prop: "operation", label: "操作", fixed: "right", width: 120 }
@@ -163,7 +163,7 @@ const handleGenerateCode = async () => {
 };
 // --- 👆 教师邀请码逻辑结束 👆 ---
 
-// 辅助方法：给不同积分段位的用户不同的颜色标签
+// 辅助方法：给不同环保星段位的用户不同的颜色标签
 const getScoreTagType = (score: number) => {
   if (score >= 500) return "danger"; // 王者
   if (score >= 200) return "warning"; // 钻石

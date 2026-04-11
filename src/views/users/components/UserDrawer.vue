@@ -21,7 +21,7 @@
           <el-input v-model="drawerProps.row.title" placeholder="例如：环保小卫士" clearable></el-input>
         </el-form-item>
         <el-form-item label="环保星" prop="score">
-          <el-input-number v-model="drawerProps.row.score" :min="0" placeholder="闯关积分" />
+          <el-input-number v-model="drawerProps.row.score" :min="0" placeholder="闯关环保星" />
         </el-form-item>
         <el-form-item label="小红花" prop="eco_coin">
           <el-input-number v-model="drawerProps.row.eco_coin" :min="0" placeholder="可用余额" />
@@ -31,7 +31,7 @@
       <template v-if="drawerProps.row.role === 'teacher'">
         <el-divider content-position="center">教师专属数据</el-divider>
         <div style="padding: 0 20px">
-          <el-alert title="教师账号无需参与积分挑战，暂无附加数值属性。" type="info" :closable="false" show-icon />
+          <el-alert title="教师账号无需参与环保星挑战，暂无附加数值属性。" type="info" :closable="false" show-icon />
         </div>
       </template>
     </el-form>

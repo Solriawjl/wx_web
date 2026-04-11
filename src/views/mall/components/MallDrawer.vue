@@ -17,8 +17,8 @@
         <el-input v-model="drawerProps.row.desc" type="textarea" :rows="3" placeholder="请输入商品描述" clearable />
       </el-form-item>
 
-      <el-form-item label="兑换积分" prop="points_price">
-        <el-input-number v-model="drawerProps.row.points_price" :min="1" :step="10" placeholder="积分" />
+      <el-form-item label="所需小红花" prop="points_price">
+        <el-input-number v-model="drawerProps.row.points_price" :min="1" :step="10" placeholder="小红花" />
       </el-form-item>
 
       <el-form-item label="库存数量" prop="stock">
@@ -56,7 +56,7 @@ import { Mall } from "@/api/modules/mall";
 
 const rules = reactive({
   name: [{ required: true, message: "请输入商品名称", trigger: "blur" }],
-  points_price: [{ required: true, message: "请输入兑换积分", trigger: "blur" }],
+  points_price: [{ required: true, message: "请输入所需小红花", trigger: "blur" }],
   image_url: [{ required: true, message: "请输入图片链接", trigger: "blur" }]
 });
 

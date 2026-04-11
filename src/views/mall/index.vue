@@ -1,6 +1,6 @@
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" title="积分商品列表" :columns="columns" :request-api="getMallItemList">
+    <ProTable ref="proTable" title="小红花商品列表" :columns="columns" :request-api="getMallItemList">
       <template #tableHeader="scope">
         <el-button type="primary" icon="Plus" @click="openDrawer('新增')">新增商品</el-button>
         <el-button type="danger" icon="Delete" plain :disabled="!scope.isSelected" @click="batchDelete(scope.selectedListIds)">
@@ -61,7 +61,7 @@ const columns: ColumnProps<Mall.MallItem>[] = [
   { prop: "id", label: "ID", width: 80 },
   { prop: "image_url", label: "商品主图", width: 100 },
   { prop: "name", label: "商品名称", search: { el: "input" }, width: 180 },
-  { prop: "points_price", label: "兑换积分", width: 120 },
+  { prop: "points_price", label: "所需小红花", width: 120 },
   { prop: "stock", label: "库存数量", width: 120 },
   { prop: "is_active", label: "上架状态", width: 120 },
   { prop: "created_at", label: "创建时间", width: 180 },
