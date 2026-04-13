@@ -6,6 +6,12 @@
         <el-avatar v-else :size="50" style="background-color: #e6a23c">师</el-avatar>
       </template>
 
+      <template #class_info="scope">
+        <el-tag :type="scope.row.class_info === '未分配' ? 'info' : 'success'" effect="plain">
+          {{ scope.row.class_info }}
+        </el-tag>
+      </template>
+
       <template #tableHeader>
         <el-button type="warning" icon="Plus" @click="openDrawer('新增指导老师', { role: 'teacher' })"> 新增老师 </el-button>
         <el-button type="primary" plain @click="openInviteCodeDialog"> 教师邀请码管理 </el-button>
@@ -46,24 +52,52 @@
 </template>
 
 <script setup lang="tsx" name="teacherManage">
-import { ref } from "vue";
+import { ref, reactive, onMounted } from "vue"; // 🚀 1. 引入 reactive 和 onMounted
 import ProTable from "@/components/ProTable/index.vue";
 import { ColumnProps } from "@/components/ProTable/interface";
 import { getUserList, deleteUser, addUser, MiniUser, getInviteCodesApi, generateInviteCodeApi } from "@/api/modules/user";
+import { getSchoolClassList } from "@/api/modules/schoolClass"; // 🚀 2. 引入班级列表 API
 import UserDrawer from "../components/UserDrawer.vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 
 const proTable = ref();
 
-// 专属于老师的列配置（极其精简，没有称号和小红花）
-const columns: ColumnProps<MiniUser>[] = [
+// 🚀 3. 创建响应式的班级字典容器
+const classEnum = ref<any[]>([]);
+
+// 🚀 4. 在组件挂载时拉取班级数据供筛选器使用
+onMounted(async () => {
+  try {
+    const res = await getSchoolClassList();
+    classEnum.value = res.data;
+  } catch (error) {
+    console.error("获取班级字典失败", error);
+  }
+});
+
+// 🚀 5. 将 columns 改为 reactive，并加入班级过滤与展示列
+const columns = reactive<ColumnProps<MiniUser>[]>([
   { type: "index", label: "序号", width: 80 },
   { prop: "avatar_url", label: "教师头像", width: 100 },
   { prop: "nickname", label: "教师微信昵称", search: { el: "input" }, width: 220 },
+
+  // 🚀 新增：班级搜索项
+  {
+    prop: "class_id",
+    label: "班级筛选",
+    isShow: false, // 在表格中隐藏该 ID 列
+    enum: classEnum, // 绕过内置API，直接绑定请求回来的响应式数组
+    search: { el: "select", props: { filterable: true, placeholder: "请选择负责班级" } },
+    fieldNames: { label: "full_name", value: "id" }
+  },
+
+  // 🚀 新增：展示班级文本
+  { prop: "class_info", label: "负责班级", width: 150 },
+
   { prop: "openid", label: "微信OpenID" },
   { prop: "created_at", label: "注册时间", width: 200 },
   { prop: "operation", label: "操作", fixed: "right", width: 160 }
-];
+]);
 
 // --- 邀请码逻辑 ---
 interface InviteCode {

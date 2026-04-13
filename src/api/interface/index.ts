@@ -44,7 +44,25 @@ export namespace Login {
   }
 }
 
+// ==========================
+// 🚀 班级管理模型定义
+// ==========================
+export namespace School {
+  export interface ClassItem {
+    id: number;
+    grade_name: string;
+    class_name: string;
+    full_name?: string; // 前端拼接展示用
+  }
+  export interface ReqAddClass {
+    grade_name: string;
+    class_name: string;
+  }
+}
+
+// ==========================
 // 用户管理模块
+// ==========================
 export namespace User {
   export interface ReqUserParams extends ReqPage {
     username: string;
@@ -55,36 +73,32 @@ export namespace User {
     createTime: string[];
     status: number;
   }
+
   export interface ResUserList {
-    id: string;
-    username: string;
-    gender: number;
-    user: { detail: { age: number } };
-    idCard: string;
-    email: string;
-    address: string;
-    createTime: string;
-    status: number;
-    avatar: string;
-    photo: any[];
+    // === Geeker-Admin 模板基础字段 ===
+    id: number | string; // 兼容后端返回的整型ID
+    username?: string;
+    gender?: number;
+    user?: { detail: { age: number } };
+    idCard?: string;
+    email?: string;
+    address?: string;
+    createTime?: string;
+    status?: number;
+    avatar?: string;
+    photo?: any[];
     children?: ResUserList[];
-  }
-  export interface ResStatus {
-    userLabel: string;
-    userValue: number;
-  }
-  export interface ResGender {
-    genderLabel: string;
-    genderValue: number;
-  }
-  export interface ResDepartment {
-    id: string;
-    name: string;
-    children?: ResDepartment[];
-  }
-  export interface ResRole {
-    id: string;
-    name: string;
-    children?: ResDepartment[];
+
+    // === 🚀 垃圾分类系统专属字段 (解决 TS 报错的白名单) ===
+    openid?: string; // 微信OpenID
+    nickname?: string; // 微信昵称
+    avatar_url?: string; // 微信头像
+    role?: string; // 用户角色：student 或 teacher
+    class_id?: number; // 所属班级ID (用于 Drawer 表单绑定)
+    class_info?: string; // 班级行政全称 (用于 Table 展示，如"三年级 1班")
+    title?: string; // 环保称号
+    score?: number; // 环保星 (总积分)
+    eco_coin?: number; // 环保币 (商城余额)
+    created_at?: string; // 注册时间
   }
 }
