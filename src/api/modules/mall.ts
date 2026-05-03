@@ -11,6 +11,8 @@ export namespace Mall {
     stock: number;
     is_active: boolean;
     created_at: string;
+    class_id?: number;
+    class_name?: string;
   }
 }
 

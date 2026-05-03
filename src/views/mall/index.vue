@@ -8,6 +8,12 @@
         </el-button>
       </template>
 
+      <template #class_id="scope">
+        <el-tag :type="scope.row.class_id === 1 ? 'success' : 'primary'">
+          {{ scope.row.class_name || "全校公共" }}
+        </el-tag>
+      </template>
+
       <template #image_url="scope">
         <el-image
           style="width: 50px; height: 50px; border-radius: 8px"
@@ -45,7 +51,7 @@
 </template>
 
 <script setup lang="ts" name="MallManage">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { ElMessage } from "element-plus";
 import { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
@@ -55,12 +61,44 @@ import { getMallItemList, deleteMallItem, updateMallItem, addMallItem, Mall } fr
 
 const proTable = ref<ProTableInstance>();
 
+// 🚀 新增：动态班级字典（enum）
+const classEnum = ref([{ label: "全校公共", value: 1 }]);
+
+// 🚀 新增：页面挂载时请求后端拿到班级树，塞入字典中供 ProTable 使用
+onMounted(() => {
+  // 注意：此处使用了原生 fetch，如果你有封装 axios 请按需替换路径
+  fetch("http://192.168.0.126:8000/api/admin/classes")
+    .then(res => res.json())
+    .then(res => {
+      if (res.code === 200) {
+        const dynamicClasses = res.data
+          .filter((c: any) => c.id !== 1) // 排除系统默认公共班
+          .map((c: any) => ({
+            label: c.grade_name + c.class_name,
+            value: c.id
+          }));
+        // 拼接默认的"全校公共"与真实班级数据
+        classEnum.value = [...classEnum.value, ...dynamicClasses];
+      }
+    });
+});
+
 // 表格配置项 (ProTable 核心魔法)
 const columns: ColumnProps<Mall.MallItem>[] = [
   { type: "selection", fixed: "left", width: 80 },
   { prop: "id", label: "ID", width: 80 },
   { prop: "image_url", label: "商品主图", width: 100 },
   { prop: "name", label: "商品名称", search: { el: "input" }, width: 180 },
+
+  // 🚀 新增：极其优雅的列配置，只需这几行，顶部搜索下拉框和表格列就全部自动生成了！
+  {
+    prop: "class_id",
+    label: "所属班级",
+    enum: classEnum,
+    search: { el: "select" },
+    width: 140
+  },
+
   { prop: "points_price", label: "所需小红花", width: 120 },
   { prop: "stock", label: "库存数量", width: 120 },
   { prop: "is_active", label: "上架状态", width: 120 },
@@ -68,7 +106,7 @@ const columns: ColumnProps<Mall.MallItem>[] = [
   { prop: "operation", label: "操作", fixed: "right", width: 200 }
 ];
 
-// 状态切换
+// 下方逻辑保持原样，没有任何改动
 const changeStatus = async (row: Mall.MallItem) => {
   try {
     await updateMallItem(row);
@@ -78,20 +116,17 @@ const changeStatus = async (row: Mall.MallItem) => {
   }
 };
 
-// 单条删除 (使用项目内置钩子)
 const deleteItem = async (row: Mall.MallItem) => {
   await useHandleData(deleteMallItem, { id: [row.id] }, `删除【${row.name}】`);
   proTable.value?.getTableList();
 };
 
-// 批量删除
 const batchDelete = async (id: number[]) => {
   await useHandleData(deleteMallItem, { id }, "删除所选商品");
   proTable.value?.clearSelection();
   proTable.value?.getTableList();
 };
 
-// 打开抽屉弹窗
 const drawerRef = ref<InstanceType<typeof MallDrawer> | null>(null);
 const openDrawer = (title: string, row: Partial<Mall.MallItem> = {}) => {
   const params = {
